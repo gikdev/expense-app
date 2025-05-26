@@ -1,26 +1,26 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from "@nestjs/common"
 import { ApiOperation } from "@nestjs/swagger"
-import { v4 as uuid } from "uuid"
+import { AppService } from "./app.service"
 import { _Report, data } from "./data"
 
 @Controller("report/:type")
 export class AppController {
+  constructor(private readonly appService: AppService) {}
+
   @Get()
   @ApiOperation({
     summary: "Get all reports",
   })
   getAllReports(@Param("type") type: string) {
-    return data.reports.filter(r => r.type === type)
+    return this.appService.getAllReports(type as _Report["type"])
   }
 
   @Get(":id")
   @ApiOperation({
     summary: "Get a report by ID",
   })
-  getIncomeById(@Param("type") type: string, @Param("id") id: string) {
-    const foundReport = data.reports.filter(r => r.type === type).find(r => r.id === id)
-    if (!foundReport) throw new NotFoundException("No report by this type/id was found!")
-    return foundReport
+  getReportById(@Param("type") type: string, @Param("id") id: string) {
+    return this.appService.getReportById(type as _Report["type"], id)
   }
 
   @Post()
@@ -31,18 +31,7 @@ export class AppController {
     @Param("type") type: "expense" | "income",
     @Body() { amount, source }: Pick<_Report, "amount" | "source">,
   ) {
-    const newReport: _Report = {
-      id: uuid(),
-      amount,
-      source,
-      created_at: new Date(),
-      updated_at: new Date(),
-      type,
-    }
-
-    data.reports.push(newReport)
-
-    return newReport
+    return this.appService.createReport(type, { amount, source })
   }
 
   @Put(":id")
@@ -54,13 +43,7 @@ export class AppController {
     @Param("type") type: "expense" | "income",
     @Body() { amount, source }: Pick<_Report, "amount" | "source">,
   ) {
-    const foundReport = data.reports.filter(r => r.type === type).find(r => r.id === id)
-    if (!foundReport) throw new NotFoundException("No report by this type/id was found!")
-    foundReport.amount = amount
-    foundReport.source = source
-    foundReport.updated_at = new Date()
-
-    return foundReport
+    return this.appService.updateReportById(id, type, { amount, source })
   }
 
   @Delete(":id")
@@ -68,11 +51,6 @@ export class AppController {
     summary: "Deletes a report by ID",
   })
   deleteReportById(@Param("id") id: string, @Param("type") type: "expense" | "income") {
-    const foundIndex = data.reports.filter(r => r.type === type).findIndex(r => r.id === id)
-    if (foundIndex === -1) throw new NotFoundException("No report by this type/id was found!")
-    const deletedItem = data.reports[foundIndex]
-    data.reports = [...data.reports.filter(r => r.id !== id)]
-
-    return deletedItem
+    return this.appService.deleteReportById(id, type)
   }
 }
