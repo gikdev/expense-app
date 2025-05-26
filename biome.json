@@ -57,6 +57,9 @@
       "quoteProperties": "asNeeded",
       "semicolons": "asNeeded",
       "trailingCommas": "all"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
     }
   },
   "json": {
