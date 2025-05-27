@@ -1,10 +1,15 @@
+export enum ReportType {
+  Expense = "expense",
+  Income = "income",
+}
+
 export interface _Report {
   id: string
   source: string
   amount: number
   created_at: Date
   updated_at: Date
-  type: "expense" | "income"
+  type: ReportType
 }
 
 interface Data {
@@ -18,7 +23,7 @@ const DUMMY_REPORTS: _Report[] = [
     amount: 7500,
     created_at: new Date(),
     updated_at: new Date(),
-    type: "income",
+    type: ReportType.Income,
   },
   {
     id: "uuid2",
@@ -26,7 +31,7 @@ const DUMMY_REPORTS: _Report[] = [
     amount: 2500,
     created_at: new Date(),
     updated_at: new Date(),
-    type: "income",
+    type: ReportType.Income,
   },
   {
     id: "uuid3",
@@ -34,7 +39,7 @@ const DUMMY_REPORTS: _Report[] = [
     amount: 500,
     created_at: new Date(),
     updated_at: new Date(),
-    type: "expense",
+    type: ReportType.Expense,
   },
 ]
 

@@ -1,7 +1,19 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseEnumPipe,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from "@nestjs/common"
 import { ApiOperation } from "@nestjs/swagger"
 import { AppService } from "./app.service"
-import { _Report, data } from "./data"
+import { ReportType, _Report } from "./data"
+import { CreateReportDto, ReportResponseDto, UpdateReportDto } from "./dtos/report.dto"
 
 @Controller("report/:type")
 export class AppController {
@@ -11,16 +23,19 @@ export class AppController {
   @ApiOperation({
     summary: "Get all reports",
   })
-  getAllReports(@Param("type") type: string) {
-    return this.appService.getAllReports(type as _Report["type"])
+  getAllReports(@Param("type", new ParseEnumPipe(ReportType)) type: string): ReportResponseDto[] {
+    return this.appService.getAllReports(type as ReportType)
   }
 
   @Get(":id")
   @ApiOperation({
     summary: "Get a report by ID",
   })
-  getReportById(@Param("type") type: string, @Param("id") id: string) {
-    return this.appService.getReportById(type as _Report["type"], id)
+  getReportById(
+    @Param("type", new ParseEnumPipe(ReportType)) type: string,
+    @Param("id", ParseUUIDPipe) id: string,
+  ): ReportResponseDto {
+    return this.appService.getReportById(type as ReportType, id)
   }
 
   @Post()
@@ -28,10 +43,10 @@ export class AppController {
     summary: "Creates a report",
   })
   createReport(
-    @Param("type") type: "expense" | "income",
-    @Body() { amount, source }: Pick<_Report, "amount" | "source">,
-  ) {
-    return this.appService.createReport(type, { amount, source })
+    @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
+    @Body() { amount, source }: CreateReportDto,
+  ): ReportResponseDto {
+    return this.appService.createReport(type as ReportType, { amount, source })
   }
 
   @Put(":id")
@@ -39,18 +54,22 @@ export class AppController {
     summary: "Updates a report by ID",
   })
   updateReportById(
-    @Param("id") id: string,
-    @Param("type") type: "expense" | "income",
-    @Body() { amount, source }: Pick<_Report, "amount" | "source">,
-  ) {
-    return this.appService.updateReportById(id, type, { amount, source })
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
+    @Body() { amount, source }: UpdateReportDto,
+  ): ReportResponseDto {
+    return this.appService.updateReportById(id, type as ReportType, { amount, source })
   }
 
+  @HttpCode(204)
   @Delete(":id")
   @ApiOperation({
     summary: "Deletes a report by ID",
   })
-  deleteReportById(@Param("id") id: string, @Param("type") type: "expense" | "income") {
-    return this.appService.deleteReportById(id, type)
+  deleteReportById(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
+  ) {
+    return this.appService.deleteReportById(id, type as ReportType)
   }
 }

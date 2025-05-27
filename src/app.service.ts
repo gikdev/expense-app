@@ -1,20 +1,21 @@
 import { Injectable, NotFoundException } from "@nestjs/common"
 import { v4 as uuid } from "uuid"
-import { _Report, data } from "./data"
+import { ReportType, _Report, data } from "./data"
+import { ReportResponseDto } from "./dtos/report.dto"
 
 @Injectable()
 export class AppService {
-  getAllReports(type: _Report["type"]) {
-    return data.reports.filter(r => r.type === type)
+  getAllReports(type: ReportType){
+    return data.reports.filter(r => r.type === type).map(r => new ReportResponseDto(r))
   }
 
-  getReportById(type: _Report["type"], id: _Report["id"]) {
+  getReportById(type: ReportType, id: _Report["id"]) {
     const foundReport = data.reports.filter(r => r.type === type).find(r => r.id === id)
     if (!foundReport) throw new NotFoundException("No report by this type/id was found!")
-    return foundReport
+    return new ReportResponseDto(foundReport)
   }
 
-  createReport(type: _Report["type"], { amount, source }: Pick<_Report, "amount" | "source">) {
+  createReport(type: ReportType, { amount, source }: Pick<_Report, "amount" | "source">) {
     const newReport: _Report = {
       id: uuid(),
       amount,
@@ -26,29 +27,26 @@ export class AppService {
 
     data.reports.push(newReport)
 
-    return newReport
+    return new ReportResponseDto(newReport)
   }
 
   updateReportById(
     id: string,
-    type: _Report["type"],
-    { amount, source }: Pick<_Report, "amount" | "source">,
+    type: ReportType,
+    { amount, source }: Partial<Pick<_Report, "amount" | "source">>,
   ) {
     const foundReport = data.reports.filter(r => r.type === type).find(r => r.id === id)
     if (!foundReport) throw new NotFoundException("No report by this type/id was found!")
-    foundReport.amount = amount
-    foundReport.source = source
+    if (amount) foundReport.amount = amount
+    if (source) foundReport.source = source
     foundReport.updated_at = new Date()
 
-    return foundReport
+    return new ReportResponseDto(foundReport)
   }
 
-  deleteReportById(id: string, type: _Report["type"]) {
+  deleteReportById(id: string, type: ReportType) {
     const foundIndex = data.reports.filter(r => r.type === type).findIndex(r => r.id === id)
     if (foundIndex === -1) throw new NotFoundException("No report by this type/id was found!")
-    const deletedItem = data.reports[foundIndex]
     data.reports = [...data.reports.filter(r => r.id !== id)]
-
-    return deletedItem
   }
 }
