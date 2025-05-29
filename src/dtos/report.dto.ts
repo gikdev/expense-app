@@ -1,11 +1,11 @@
+import { Exclude, Expose } from "class-transformer"
 import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator"
-import {Exclude, Expose}from "class-transformer"
 import { ReportType } from "src/data"
 
 export class CreateReportDto {
   @IsNumber()
   @IsPositive()
-  amount: string
+  amount: number
 
   @IsNotEmpty()
   @IsString()
@@ -16,18 +16,25 @@ export class UpdateReportDto {
   @IsNumber()
   @IsPositive()
   @IsOptional()
-  amount?: string
+  amount: number
 
   @IsNotEmpty()
   @IsString()
   @IsOptional()
-  source?: string
+  source: string
 }
 
 export class ReportResponseDto {
   id: string
   source: string
   amount: number
+
+  @Expose({ name: "createdAt" })
+  transformCreateAt() {
+    return this.created_at
+  }
+
+  @Exclude()
   created_at: Date
 
   @Exclude()

@@ -11,20 +11,20 @@ import {
   Put,
 } from "@nestjs/common"
 import { ApiOperation } from "@nestjs/swagger"
-import { AppService } from "./app.service"
-import { ReportType, _Report } from "./data"
-import { CreateReportDto, ReportResponseDto, UpdateReportDto } from "./dtos/report.dto"
+import { ReportType, _Report } from "../data"
+import { CreateReportDto, ReportResponseDto, UpdateReportDto } from "../dtos/report.dto"
+import { ReportService } from "./report.service"
 
 @Controller("report/:type")
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class ReportController {
+  constructor(private readonly reportService: ReportService) {}
 
   @Get()
   @ApiOperation({
     summary: "Get all reports",
   })
   getAllReports(@Param("type", new ParseEnumPipe(ReportType)) type: string): ReportResponseDto[] {
-    return this.appService.getAllReports(type as ReportType)
+    return this.reportService.getAllReports(type as ReportType)
   }
 
   @Get(":id")
@@ -35,7 +35,7 @@ export class AppController {
     @Param("type", new ParseEnumPipe(ReportType)) type: string,
     @Param("id", ParseUUIDPipe) id: string,
   ): ReportResponseDto {
-    return this.appService.getReportById(type as ReportType, id)
+    return this.reportService.getReportById(type as ReportType, id)
   }
 
   @Post()
@@ -46,7 +46,7 @@ export class AppController {
     @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
     @Body() { amount, source }: CreateReportDto,
   ): ReportResponseDto {
-    return this.appService.createReport(type as ReportType, { amount, source })
+    return this.reportService.createReport(type as ReportType, { amount, source })
   }
 
   @Put(":id")
@@ -58,7 +58,7 @@ export class AppController {
     @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
     @Body() { amount, source }: UpdateReportDto,
   ): ReportResponseDto {
-    return this.appService.updateReportById(id, type as ReportType, { amount, source })
+    return this.reportService.updateReportById(id, type as ReportType, { amount, source })
   }
 
   @HttpCode(204)
@@ -70,6 +70,6 @@ export class AppController {
     @Param("id", ParseUUIDPipe) id: string,
     @Param("type", new ParseEnumPipe(ReportType)) type: "expense" | "income",
   ) {
-    return this.appService.deleteReportById(id, type as ReportType)
+    return this.reportService.deleteReportById(id, type as ReportType)
   }
 }

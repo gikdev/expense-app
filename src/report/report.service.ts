@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common"
 import { v4 as uuid } from "uuid"
-import { ReportType, _Report, data } from "./data"
-import { ReportResponseDto } from "./dtos/report.dto"
+import { ReportType, _Report, data } from "../data"
+import { ReportResponseDto } from "../dtos/report.dto"
 
 @Injectable()
-export class AppService {
-  getAllReports(type: ReportType){
+export class ReportService {
+  getAllReports(type: ReportType) {
     return data.reports.filter(r => r.type === type).map(r => new ReportResponseDto(r))
   }
 
